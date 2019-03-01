@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <!--ConnectionFactory,由jms服务商提供-->
+    <bean id="targetConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+        <property name="brokerURL" value="${brokerURL}"/>
+        <!--<property name="brokerURL" value="tcp://192.168.197.128:61616"/>-->
+    </bean>
+    <!--Spring用于管理真正的ConnectionFactory 的ConnectionFactory-->
+    <bean id="connectionFactory" class="org.springframework.jms.connection.SingleConnectionFactory">
+        <!--目标ConnectionFactory对应证书的可以产生Connection JMSConnectionFactory-->
+        <property name="targetConnectionFactory" ref="targetConnectionFactory"/>
+    </bean>
+
+    <!--这个是主题目的地，一对多的 -->
+    <bean id="topicAddOrUpdateDestination" class="org.apache.activemq.command.ActiveMQTopic">
+        <constructor-arg value="itemAddOrUpdateTopic"/>
+    </bean>
+    <bean id="topicDelDestination" class="org.apache.activemq.command.ActiveMQTopic">
+        <constructor-arg value="itemDelTopic"/>
+    </bean>
+
+    <!--商品添加,修改,同步索引库 监听器-->
+    <bean id="htmlGenAddOrUpdateListener" class="com.e3.item.listener.HtmlGenAddOrUpdateListener"/>
+    <!--商品添加,修改,同步索引库 监听容器-->
+    <bean class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+        <property name="connectionFactory" ref="connectionFactory"/>
+        <property name="destination" ref="topicAddOrUpdateDestination"/>
+        <property name="messageListener" ref="htmlGenAddOrUpdateListener"/>
+    </bean>
+    <!--商品删除删除索引库 监听器-->
+    <bean id="htmlGenDelListener" class="com.e3.item.listener.HtmlGenDelListener"/>
+    <!--商品删除删除索引库 监听容器-->
+    <bean class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+        <property name="connectionFactory" ref="connectionFactory"/>
+        <property name="destination" ref="topicDelDestination"/>
+        <property name="messageListener" ref="htmlGenDelListener"/>
+    </bean>
+</beans>

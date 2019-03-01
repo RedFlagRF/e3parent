@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <!--配置单机版Solr-->
+    <bean id="solrClient" class="org.apache.solr.client.solrj.impl.HttpSolrClient">
+    <constructor-arg name="builder" ref="builder"/>
+    </bean>
+    <bean id="builder" class="org.apache.solr.client.solrj.impl.HttpSolrClient.Builder">
+    <constructor-arg name="baseSolrUrl" value="http://192.168.197.128:8079/solr/core1"/>
+    </bean>
+    <!--配置集群版solr-->
+
+ <!--   <bean class="org.apache.solr.client.solrj.impl.CloudSolrClient.Builder" id="emptyBuilder"/>
+    <bean factory-bean="emptyBuilder" factory-method="withZkHost" id="builder">
+        <constructor-arg value="${zkHost}"
+                         type="java.lang.String"/>
+    </bean>
+    <bean factory-bean="builder" factory-method="build" id="solrClient">
+        <property name="defaultCollection" value="${DEFAULT_COLLECTION}"/>
+    </bean>-->
+
+</beans>
